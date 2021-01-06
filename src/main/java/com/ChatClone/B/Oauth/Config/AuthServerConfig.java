@@ -30,21 +30,27 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter{
 	private AuthenticationManager authenticationManager;
 	
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private AuthorizationCodeServices authorizationCodeServices;
+	
+//	@Autowired
+//	private UserDetailsService userDetailsService;
 	
 	@Autowired
-	private UserDetailsService userDetailsService;
+	private ClientDetailsService clientDetailsService;
 	
 	@Autowired
 	private DataSource dataSource;
 	
-	@Autowired
-	private AuthorizationCodeServices authorizationCodeServices;
 	
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception{
+		// mybatis 없이 jdbc 사용 
 		clients.jdbc(dataSource);
+		// mybatis 사용 
+//		clients.withClientDetails(clientDetailsService);
 		
+		
+//////////////// In Memory 방식의 코드 ////////////////
 //		clients.inMemory()
 //			.withClient("iamclient")
 //			.secret(passwordEncoder.encode("iamsecret"))
@@ -55,15 +61,15 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter{
 //			.autoApprove(true);
 	}
 	
-//	@Bean
-//	public AuthorizationCodeServices jdbcAuthorizationCodeServices(DataSource dataSource) {
-//		return new JdbcAuthorizationCodeServices(dataSource);
-//	}
-	
 	@Bean
 	@Primary
 	public ClientDetailsService jdbcClientDetailsService(DataSource dataSource) {
 		return new JdbcClientDetailsService(dataSource);
+	}
+	
+	@Bean
+	public AuthorizationCodeServices authorizationServices(DataSource dataSource) {
+		return new JdbcAuthorizationCodeServices(dataSource);
 	}
 	
 
@@ -79,53 +85,18 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter{
 	
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception{
-//		endpoints.tokenStore(tokenStore)
-//			.authenticationManager(authenticationManager)
-//			.userDetailsService(userDetailsService);
 		
 		endpoints //(4)
         .approvalStore(approvalStore())
         .tokenStore(tokenStore())
         .authenticationManager(authenticationManager)
-//		.authorizationCodeServices(authorizationCodeServices)
+        .authorizationCodeServices(authorizationCodeServices)
 ;
 	}
 	
 	
 	
 	
-//	@Autowired
-//	private AuthenticationManager authenticationManager;
-//	
-//	@Autowired
-//	private AuthorizationCodeServices authorizationCodeServices;
-//	
-//	@Autowired
-//	private ApprovalStore approvalStore;
-//
-//	@Autowired
-//	private TokenStore tokenStore;
-//
-//	@Bean
-//	public AuthorizationCodeServices jdbcAuthorizationCodeServices(DataSource dataSource) {
-//		return new JdbcAuthorizationCodeServices(dataSource);
-//	}
-//	
-//	@Bean
-//	public ApprovalStore jdbcApprovalStore(DataSource dataSource) {
-//		return new JdbcApprovalStore(dataSource);
-//	}
-//
-//	@Bean
-//	public TokenStore jdbcTokenStore(DataSource dataSource) {
-//		return new CustomJdbcTokenStore(dataSource);
-//	}
-//	
-//	@Bean
-//	@Primary
-//	public ClientDetailsService jdbcClientDetailsService(DataSource dataSource) {
-//		return new JdbcClientDetailsService(dataSource);
-//	}
 //
 ///*
 //데이터베이스를 사용하여 사용자를 관리하므로 이 코드는 삭제처리합니다.
