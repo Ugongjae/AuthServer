@@ -4,26 +4,20 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
+
+import lombok.AllArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter{
 /////////////////////  JPA 방식에서 사용했던 코드 //////////////////////
 //	@Resource(name="userService")
@@ -72,7 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 			.csrf().disable()
 			.authorizeRequests().anyRequest().authenticated()
 			.and()
-			.formLogin().loginPage("/login")
+			.formLogin()
 			.and()
 			.httpBasic();
 		
@@ -87,6 +81,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		try {
 			String toEncodeString = String.format("%s:%s", oauthClientId, oauthClientSecret);
 			String authorizationRequestHeader = "Basic " + encoder.encodeToString(toEncodeString.getBytes("UTF-8"));
+			System.err.print(authorizationRequestHeader);
 //			log.debug("AuthorizationRequestHeader : [{}] ", authorizationRequestHeader);			// Y2xpZW50OnNlY3JldA==
 		} catch (UnsupportedEncodingException e) {
 		}
@@ -105,10 +100,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		return super.authenticationManagerBean();
 	}
 
-//	@Bean
-//	public PasswordEncoder passwordEncoder() {
-//		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//	}
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+	}
 ////////////////////////// In Memory 방식에서 사용한 코드 ////////////////////////////
 	/*
 	데이터베이스를 사용하므로 이 코드는 삭제처리합니다.
@@ -126,45 +121,45 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	*/
 
 //////////////////////// JDBC를 사용하지만, Mybatis sql문을 사용하지 않았을 때 필요한 코드 //////////////////////////
-	@Autowired
-	DataSource dataSource;
-	private JdbcUserDetailsManager userDetailsManager;
-
-	// Enable jdbc authentication
-	@Autowired
-	public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
-		this.userDetailsManager = auth
-		.jdbcAuthentication()
-		.dataSource(dataSource)
-		.usersByUsernameQuery("select username, password, enabled from oauth_user_details where username = ?")
-		.authoritiesByUsernameQuery("select username, authority from oauth_user_authorities where username = ?")
-//		.rolePrefix("ROLE_")
-		.getUserDetailsService();
-//		필요할 경우 아래의 코드들을 주석해제합니다.
-//		.userExistsSql("select username from oauth_user_details where username = ?")
-//		.createUserSql("insert into oauth_user_details (username, password, enabled) values (?,?,?)")
-//		.createAuthoritySql("insert into oauth_user_authorities (username, authority) values (?,?)")
-//		.updateUserSql("update oauth_user_details set password = ?, enabled = ? where username = ?")
-//		.deleteUserSql("delete from oauth_user_details where username = ?")
-//		.deleteUserAuthoritiesSql("delete from oauth_user_authorities where username = ?");
-	}
-	
-	@Bean
-	public JdbcUserDetailsManager jdbcUserDetailsManager() throws Exception {
-//		JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager();
-//		jdbcUserDetailsManager.setDataSource(dataSource);
-//		
-//		this.userDetailsManager.setUsersByUsernameQuery("select username, password, enabled from oauth_user_details where username = ?");
-		this.userDetailsManager.setUserExistsSql("select username from oauth_user_details where username = ?");
-		this.userDetailsManager.setCreateUserSql("insert into oauth_user_details (username, password, enabled) values (?,?,?)");
-		this.userDetailsManager.setCreateAuthoritySql("insert into oauth_user_authorities (username, authority) values (?,?)");
-		this.userDetailsManager.setUpdateUserSql("update oauth_user_details set password = ?, enabled = ? where username = ?");
-		this.userDetailsManager.setDeleteUserSql("delete from oauth_user_details where username = ?");
-		this.userDetailsManager.setDeleteUserAuthoritiesSql("delete from oauth_user_authorities where username = ?");
-//		
-//		return jdbcUserDetailsManager;
-		return this.userDetailsManager;
-	}
+//	@Autowired
+//	DataSource dataSource;
+//	private JdbcUserDetailsManager userDetailsManager;
+//
+//	// Enable jdbc authentication
+//	@Autowired
+//	public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+//		this.userDetailsManager = auth
+//		.jdbcAuthentication()
+//		.dataSource(dataSource)
+//		.usersByUsernameQuery("select username, password, enabled from oauth_user_details where username = ?")
+//		.authoritiesByUsernameQuery("select username, authority from oauth_user_authorities where username = ?")
+////		.rolePrefix("ROLE_")
+//		.getUserDetailsService();
+////		필요할 경우 아래의 코드들을 주석해제합니다.
+////		.userExistsSql("select username from oauth_user_details where username = ?")
+////		.createUserSql("insert into oauth_user_details (username, password, enabled) values (?,?,?)")
+////		.createAuthoritySql("insert into oauth_user_authorities (username, authority) values (?,?)")
+////		.updateUserSql("update oauth_user_details set password = ?, enabled = ? where username = ?")
+////		.deleteUserSql("delete from oauth_user_details where username = ?")
+////		.deleteUserAuthoritiesSql("delete from oauth_user_authorities where username = ?");
+//	}
+//	
+//	@Bean
+//	public JdbcUserDetailsManager jdbcUserDetailsManager() throws Exception {
+////		JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager();
+////		jdbcUserDetailsManager.setDataSource(dataSource);
+////		
+////		this.userDetailsManager.setUsersByUsernameQuery("select username, password, enabled from oauth_user_details where username = ?");
+//		this.userDetailsManager.setUserExistsSql("select username from oauth_user_details where username = ?");
+//		this.userDetailsManager.setCreateUserSql("insert into oauth_user_details (username, password, enabled) values (?,?,?)");
+//		this.userDetailsManager.setCreateAuthoritySql("insert into oauth_user_authorities (username, authority) values (?,?)");
+//		this.userDetailsManager.setUpdateUserSql("update oauth_user_details set password = ?, enabled = ? where username = ?");
+//		this.userDetailsManager.setDeleteUserSql("delete from oauth_user_details where username = ?");
+//		this.userDetailsManager.setDeleteUserAuthoritiesSql("delete from oauth_user_authorities where username = ?");
+////		
+////		return jdbcUserDetailsManager;
+//		return this.userDetailsManager;
+//	}
 
 	
 	

@@ -2,6 +2,7 @@ package com.ChatClone.B.Oauth.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
@@ -18,7 +19,6 @@ public class OAuthClientDetailsService implements ClientDetailsService{
 	@Override
 	public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException{
 		OAuthClientDetails client = clientDetailsDAO.getClientById(clientId);
-		
 		if(client==null) {
 			throw new ClientRegistrationException(clientId);
 		}

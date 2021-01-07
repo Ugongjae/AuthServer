@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0/EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true" />
+	</settings>
+
+	<typeAliases>
+		<typeAlias type="com.ChatClone.B.Oauth.Model.OAuthClientDetails" alias="OAuthClientDetails"/>
+		<typeAlias type="com.ChatClone.B.Oauth.Model.OAuthUserDetails" alias="OAuthUserDetails"/>
+		<typeAlias type="com.ChatClone.B.Oauth.Model.OAuthAccessToken" alias="OAuthAccessToken"/>
+		<typeAlias type="com.ChatClone.B.Oauth.Model.OAuthRefreshToken" alias="OAuthRefreshToken"/>
+		<typeAlias type="com.ChatClone.B.Oauth.Model.OAuthCode" alias="OAuthCode"/>
+		<typeAlias type="com.ChatClone.B.Oauth.Model.OAuthApproval" alias="OAuthApproval"/>
+	</typeAliases>
+
+</configuration>
